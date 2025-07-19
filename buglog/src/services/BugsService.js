@@ -22,6 +22,49 @@ class BugsService {
         return bug
     }
 
+    async getQueryBugs(query) {
+        // If the query is empty, return all bugs
+        if (Object.keys(query).length === 0) {
+            return this.getBugs();
+        }
+
+        // Otherwise, filter bugs based on the query
+        const sortBy = query.order;
+        delete query.order; //so when the query is sent, it does not include the order or errors
+
+        const pageSize = query.pageSize || 10; // Default page size
+        const page = query.page || 1;
+        delete query.page;
+        const skipAmount = (page - 1) * pageSize;
+
+        const search = query.search;
+        delete query.search;
+        if (search) {
+            query.$or = [
+                { title: new RegExp(search, 'ig') },
+                { description: new RegExp(search, 'ig') }
+            ];
+        }
+
+        console.log('finding by: ', query);
+        console.log('sorting by: ', sortBy);
+        console.log('page: ', page, skipAmount);
+
+        const bugs = await dbContext.Bug.find(query).sort(sortBy + ' createdAt').skip(skipAmount).limit(pageSize).populate('creator')
+
+        const resultCount = await dbContext.Bug.countDocuments(query);
+
+        return {
+            query,
+            sortBy,
+            pageSize,
+            page: parseInt(page),
+            totalPages: Math.ceil(resultCount / pageSize),
+            totalResults: resultCount,
+            results: bugs
+        };
+    }
+
     async updateBug(bugId, bugData) {
         const bug = await dbContext.Bug.findById(bugId);
         
