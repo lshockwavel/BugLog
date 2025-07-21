@@ -5,8 +5,6 @@ import { notesService } from "../services/NotesService.js";
 import { trackedbugsService } from "../services/TrackedBugsService.js";
 
 
-
-
 export class BugController extends BaseController {
   constructor() {
     super('api/bugs')

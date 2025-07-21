@@ -83,14 +83,8 @@ class BugsService {
         bug.description = bugData.description || bug.description;
         bug.closed = bugData.closed !== undefined ? bugData.closed : bug.closed;
 
-        if (bug.closed == true)
-        {
-            bug.closedDate = new Date();
-        }
-        else
-        {
-            bug.closedDate = null;
-        }
+        //Sets the closed date to the current date if the bug is closed, otherwise sets it to null
+        bug.closedDate = bug.closed ? new Date() : null;
 
         await bug.save();
         return bug;
