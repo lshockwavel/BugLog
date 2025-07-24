@@ -33,7 +33,8 @@ export class BugController extends BaseController {
 
   async getBugs(req, res, next) {
     try {
-        const bugs = await bugsService.getBugs();
+        const query = req.query;
+        const bugs = await bugsService.getBugs(query);
         res.send(bugs);
         } catch (error) {
         next(error);

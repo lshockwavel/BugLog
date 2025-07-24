@@ -9,8 +9,16 @@ class BugsService {
         return bug;
     }
 
-    async getBugs() {
-        const bugs = await dbContext.Bug.find().populate('creator');
+    async getBugs(query = {}) {
+        if(query.title){
+            query.title = new RegExp(query.title, 'i'); // Case-insensitive search for title
+        }
+        let orderBy = query.orderBy || 'createdAt';
+        if(query.orderBy){
+            delete query.orderBy; // Remove orderBy from the query to avoid errors
+        }
+
+        const bugs = await dbContext.Bug.find(query).sort(orderBy).populate('creator');
         return bugs;
     }
     
@@ -39,6 +47,8 @@ class BugsService {
 
         const search = query.search;
         delete query.search;
+
+        //IF one exists, add a search filter for either title or description
         if (search) {
             query.$or = [
                 { title: new RegExp(search, 'ig') },
